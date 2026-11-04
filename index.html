@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ChiryTV</title>
+<style>
+:root{--bg:#000;--panel:#111;--line:#2a2a2a;--text:#eef1f5;--mut:#9a9a9a;--acc:#3fb8a6;--focus:#ffc247;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;font:18px/1.4 system-ui,Arial,sans-serif;background:var(--bg);color:var(--text)}
+header{padding:14px 20px;border-bottom:1px solid var(--line);display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+h1{font-size:26px;margin:0 auto 0 0;letter-spacing:1px}
+button,input,select{font:inherit;color:var(--text);background:var(--panel);border:2px solid var(--line);border-radius:8px;padding:10px 14px}
+button{cursor:pointer}
+button.primary{background:var(--acc);border-color:var(--acc);color:#04201b;font-weight:600}
+button.on{border-color:var(--acc)}
+button:focus,input:focus,select:focus,.it:focus,.pc:focus{outline:4px solid var(--focus);outline-offset:2px}
+main{padding:20px;max-width:1100px;margin:auto}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:16px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.row>*{flex:1 1 160px}
+.msg{color:var(--mut);margin:8px 0}.err{color:#ff9b8a}
+.hide{display:none!important}
+label{display:block;color:var(--mut);font-size:15px;margin-bottom:4px}
+.chk{display:flex;align-items:center;gap:8px;color:var(--text);font-size:17px}
+.chk input{width:22px;height:22px;padding:0}
+.plan{border-color:#1f4f58;color:#8fe3d6}
+h1 svg{width:1.3em;height:1.3em;vertical-align:-.25em;margin-right:8px}
+button svg{width:1em;height:1em;vertical-align:-.12em;margin-left:6px}
+.field{position:relative}
+.field svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:20px;height:20px;opacity:.7;pointer-events:none}
+.field input{width:100%;padding-left:46px}
+.login-title{font-size:30px;margin:6px 0 18px}
+.pill{display:inline-block;border:1px solid rgba(160,220,255,.25);border-radius:8px;padding:6px 12px;color:#9ac8c0;font-size:16px;margin-bottom:14px}
+body.login{background:#02060c}
+body.login::before{content:"";position:fixed;inset:0;z-index:-1;filter:blur(4px);opacity:.8;
+background:radial-gradient(circle at 15% 20%,rgba(30,90,180,.35),transparent 45%),radial-gradient(circle at 85% 75%,rgba(120,50,170,.35),transparent 45%),repeating-linear-gradient(90deg,rgba(255,255,255,.06) 0 130px,transparent 130px 150px),repeating-linear-gradient(0deg,rgba(255,255,255,.06) 0 180px,transparent 180px 200px)}
+body.login header{border:0;justify-content:center;position:relative;padding-top:28px}
+body.login h1{margin:0;font-size:58px;color:#7fdcff;text-shadow:0 0 12px #1ea7ff,0 0 32px #1478ff}
+body.login #btnDomain{position:absolute;right:20px;top:20px;background:rgba(20,40,60,.5);border-color:rgba(160,220,255,.35);border-radius:12px}
+body.login main{max-width:860px}
+body.login #viewLogin{background:rgba(20,32,44,.55);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid rgba(160,220,255,.35);border-radius:20px;padding:26px;box-shadow:0 10px 40px rgba(0,0,0,.6)}
+body.login #viewLogin input[type=text],body.login #viewLogin input[type=password]{background:rgba(255,255,255,.07);border-color:rgba(160,220,255,.3);border-radius:12px}
+body.login #btnLogin{background:#17e3e0;border-color:#17e3e0;color:#022;box-shadow:0 0 18px rgba(23,227,224,.55);padding:12px 36px;border-radius:12px}
+
+/* Televisión */
+.tvwrap{max-width:860px;margin:0 auto 16px}
+.antenna{position:relative;height:54px;width:140px;margin:0 auto}
+.antenna:before,.antenna:after{content:"";position:absolute;bottom:0;left:50%;width:4px;height:64px;background:#555;border-radius:2px;transform-origin:50% 100%}
+.antenna:before{transform:rotate(-30deg)}.antenna:after{transform:rotate(30deg)}
+.bezel{background:linear-gradient(#2d2d2d,#151515);border:2px solid #3b3b3b;border-radius:28px;padding:10px 18px 16px;box-shadow:0 0 28px rgba(30,167,255,.18)}
+.tvlogo{text-align:center;font-weight:700;font-size:22px;letter-spacing:1px;color:#7fdcff;text-shadow:0 0 8px #1ea7ff,0 0 18px #1478ff;margin-bottom:8px}
+.tvlogo svg{width:1.2em;height:1.2em;vertical-align:-.2em;margin-right:6px}
+.screen{position:relative;padding-top:56.25%;background:#000;border:6px solid #050505;border-radius:18px;overflow:hidden;box-shadow:inset 0 0 22px rgba(0,0,0,.9)}
+.screen video{position:absolute;top:0;left:0;width:100%;height:100%;background:#000}
+.led{width:8px;height:8px;border-radius:50%;background:#17e3e0;box-shadow:0 0 8px #17e3e0;margin:10px auto 0}
+.stand{height:12px;width:46%;margin:0 auto;background:linear-gradient(#222,#0c0c0c);border-radius:0 0 14px 14px}
+.nowbar{display:flex;gap:10px;align-items:center;justify-content:center;margin-top:12px;text-align:center}
+
+/* Catálogo */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px}
+.pc{position:relative;background:#0b0b0b;border:1px solid var(--line);border-radius:10px;overflow:hidden;cursor:pointer}
+.poster{position:relative;padding-top:150%;background:#1a1a1a}
+.poster img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover}
+.poster img.ct{object-fit:contain;padding:12px}
+.pc .nm{padding:8px 10px;font-size:15px;line-height:1.25;max-height:3.9em;overflow:hidden}
+.list .it{display:flex;align-items:center;gap:12px;padding:8px 12px;border-bottom:1px solid var(--line);cursor:pointer;border-radius:6px}
+.it:hover,.pc:hover{background:#1c1c1c}
+.it img{width:44px;height:44px;object-fit:contain;background:#1a1a1a;border-radius:6px;flex:0 0 44px}
+.it .nm{flex:1}
+.star{background:rgba(0,0,0,.65);border:0;color:#ffc247;font-size:22px;padding:2px 10px;border-radius:8px;line-height:1.3}
+.pc .star{position:absolute;top:6px;right:6px}
+.det{display:flex;gap:18px;flex-wrap:wrap;margin:12px 0}
+.dposter{flex:0 0 200px;max-width:100%;position:relative;padding-top:0}
+.dposter img{width:200px;max-width:100%;border-radius:10px;display:block;background:#1a1a1a;min-height:60px}
+.dinfo{flex:1 1 280px}
+.dinfo h2{margin:0 0 6px;font-size:26px}
+.meta{color:#8fe3d6;margin:0 0 10px}
+.plot{color:#d8dde3}
+.sep{color:var(--acc);font-weight:600;padding:12px 4px 4px}
+.ep small{display:block;color:var(--mut);font-size:14px}
+.acts{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+</style>
+</head>
+<body class="login">
+<header>
+  <h1><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 3l4 4 4-4"/></svg>ChiryTV</h1>
+  <button id="btnDomain">Cambiar dominio<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg></button>
+  <button id="btnOut" class="hide">Salir</button>
+</header>
+<main>
+  <section id="viewDomain" class="card hide">
+    <label for="fHost">Dominio actual (ej. http://servidor.com:8880)</label>
+    <div class="row">
+      <input id="fHost" autocomplete="off" autocapitalize="none">
+      <button id="btnHost" class="primary">Guardar dominio</button>
+    </div>
+    <p id="hostMsg" class="msg"></p>
+  </section>
+
+  <section id="viewLogin" class="card">
+    <span class="pill">Servidor: <span id="hostShow"></span></span>
+    <h2 class="login-title">Iniciar Sesión</h2>
+    <div class="row" style="align-items:flex-start">
+      <div class="field">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
+        <input id="fUser" type="text" placeholder="Usuario" aria-label="Usuario" autocomplete="off" autocapitalize="none">
+      </div>
+      <div>
+        <div class="field">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg>
+          <input id="fPass" type="password" placeholder="Contraseña" aria-label="Contraseña" autocomplete="off">
+        </div>
+        <label class="chk" style="margin-top:12px"><input id="showPass" type="checkbox"> Mostrar contraseña</label>
+      </div>
+    </div>
+    <p><button id="btnLogin" class="primary">Entrar</button></p>
+    <p id="loginMsg" class="msg"></p>
+  </section>
+
+  <section id="viewPlayer" class="hide">
+    <div id="plan" class="card plan"></div>
+
+    <div class="tvwrap">
+      <div class="antenna"></div>
+      <div class="bezel">
+        <div class="tvlogo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 3l4 4 4-4"/></svg>ChiryTV</div>
+        <div class="screen"><video id="video" controls autoplay playsinline></video></div>
+        <div class="led"></div>
+      </div>
+      <div class="stand"></div>
+      <div class="nowbar"><span id="now" class="msg"></span><button id="nowStar" class="star hide">☆</button></div>
+    </div>
+
+    <div class="card">
+      <div class="row">
+        <button id="tabLive" class="on">TV en vivo</button>
+        <button id="tabVod">Películas</button>
+        <button id="tabSeries">Series</button>
+        <button id="tabFav">★ Favoritos</button>
+      </div>
+      <p id="playMsg" class="msg"></p>
+      <div id="listBox">
+        <div class="row">
+          <select id="cats" aria-label="Categoría"></select>
+          <input id="search" type="search" placeholder="Buscar" aria-label="Buscar">
+        </div>
+        <div id="items" class="list"></div>
+        <p id="more" style="text-align:center"></p>
+      </div>
+      <div id="detail" class="hide list"></div>
+    </div>
+  </section>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.13/hls.min.js"></script>
+<script>
+var $ = function(id){return document.getElementById(id)};
+var DEFAULT_HOST = 'http://gazydo.vip:8880', PAGE = 60;
+function load(k){ try { return localStorage.getItem(k); } catch (e) { return null; } }
+function save(k, v){ try { localStorage.setItem(k, v); } catch (e) {} }
+function drop(k){ try { localStorage.removeItem(k); } catch (e) {} }
+
+var host = load('chiry_host') || DEFAULT_HOST;
+var sess = null, mode = 'live', streams = [], limit = PAGE, hls = null;
+var favs = [];
+try { favs = JSON.parse(load('chiry_favs') || '[]'); } catch (e) { favs = []; }
+var CFG = {
+  live:   { cats: 'get_live_categories',   list: 'get_live_streams' },
+  vod:    { cats: 'get_vod_categories',    list: 'get_vod_streams' },
+  series: { cats: 'get_series_categories', list: 'get_series' }
+};
+var TABS = { live: 'tabLive', vod: 'tabVod', series: 'tabSeries', fav: 'tabFav' };
+
+function normHost(h){
+  h = h.trim().replace(/\/+$/, '');
+  if (!/^https?:\/\//i.test(h)) h = 'http://' + h;
+  return h;
+}
+function show(v){
+  ['viewLogin','viewPlayer'].forEach(function(x){ $(x).classList.toggle('hide', x !== v); });
+  document.body.classList.toggle('login', v === 'viewLogin');
+}
+function showHost(){ $('hostShow').textContent = host; $('fHost').value = host; }
+function showPlan(i){
+  var el = $('plan'); el.style.color = ''; el.textContent = '';
+  if (!i) return;
+  var exp = parseInt(i.exp_date, 10), txt, days = null;
+  if (!exp) { txt = 'Vigencia del plan: sin fecha de vencimiento'; }
+  else {
+    var d = new Date(exp * 1000); days = Math.ceil((d - new Date()) / 86400000);
+    var f = d.toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' });
+    txt = days < 0 ? 'Plan vencido el ' + f : 'Vigencia del plan: hasta el ' + f + ' (quedan ' + days + (days === 1 ? ' día)' : ' días)');
+  }
+  if (i.max_connections) txt += '  ·  Conexiones: ' + (i.active_cons || 0) + '/' + i.max_connections;
+  el.textContent = txt;
+  if (days !== null && days <= 7) el.style.color = '#ffb36b';
+}
+
+/* Dominio */
+$('btnDomain').onclick = function(){ $('viewDomain').classList.toggle('hide'); $('hostMsg').textContent = ''; $('fHost').focus(); };
+$('btnHost').onclick = function(){
+  if (!$('fHost').value.trim()) { $('hostMsg').className = 'msg err'; $('hostMsg').textContent = 'Escribe un dominio.'; return; }
+  host = normHost($('fHost').value); save('chiry_host', host); showHost();
+  $('viewDomain').classList.add('hide');
+  if (sess) { setMode(mode); }
+};
+
+/* Acceso */
+$('showPass').onchange = function(){ $('fPass').type = this.checked ? 'text' : 'password'; };
+function api(action, extra){
+  var url = host + '/player_api.php?username=' + encodeURIComponent(sess.user) +
+            '&password=' + encodeURIComponent(sess.pass) + (action ? '&action=' + action : '') + (extra || '');
+  return fetch(url).then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); });
+}
+function enter(info){
+  $('btnOut').classList.remove('hide'); show('viewPlayer'); setMode('live');
+  if (info) showPlan(info);
+  else api('').then(function(d){ showPlan(d && d.user_info); }).catch(function(){});
+}
+$('btnLogin').onclick = function(){
+  var u = $('fUser').value.trim(), p = $('fPass').value;
+  var m = $('loginMsg'); m.className = 'msg';
+  if (!u || !p) { m.className = 'msg err'; m.textContent = 'Escribe usuario y contraseña.'; return; }
+  m.textContent = 'Conectando...';
+  sess = { user: u, pass: p };
+  api('').then(function(d){
+    if (d && d.user_info && d.user_info.auth == 1) {
+      save('chiry_user', u); save('chiry_pass', p); m.textContent = ''; enter(d.user_info);
+    } else { sess = null; m.className = 'msg err'; m.textContent = 'Usuario o contraseña incorrectos.'; }
+  }).catch(function(e){
+    sess = null; m.className = 'msg err';
+    m.textContent = 'No se pudo conectar. Revisa el dominio, o puede que el servidor no permita el acceso desde el navegador (CORS) o que mezcles http con https. (' + e.message + ')';
+  });
+};
+$('btnOut').onclick = function(){
+  drop('chiry_user'); drop('chiry_pass'); sess = null;
+  if (hls) { hls.destroy(); hls = null; }
+  $('video').removeAttribute('src'); $('video').load();
+  $('btnOut').classList.add('hide'); show('viewLogin');
+};
+function fail(e){
+  $('playMsg').className = 'msg err';
+  $('playMsg').textContent = 'No se pudo cargar. Revisa tu conexión o el dominio. (' + e.message + ')';
+}
+
+/* Favoritos */
+function favKey(it){ return it.type + ':' + it.id; }
+function isFav(it){ return favs.some(function(f){ return favKey(f) === favKey(it); }); }
+function toggleFav(it){
+  if (isFav(it)) favs = favs.filter(function(f){ return favKey(f) !== favKey(it); });
+  else favs.push({ type: it.type, id: it.id, name: it.name, img: it.img || '' });
+  save('chiry_favs', JSON.stringify(favs));
+  refreshStars();
+  if (mode === 'fav' && $('detail').classList.contains('hide')) renderItems();
+}
+function refreshStars(){
+  var a = document.querySelectorAll('.star');
+  for (var i = 0; i < a.length; i++) if (a[i]._it) a[i].textContent = isFav(a[i]._it) ? '★' : '☆';
+}
+function mkStar(it){
+  var b = document.createElement('button'); b.className = 'star'; b._it = it;
+  b.textContent = isFav(it) ? '★' : '☆'; b.setAttribute('aria-label', 'Favorito');
+  b.onclick = function(e){ e.stopPropagation(); toggleFav(it); };
+  return b;
+}
+$('nowStar').onclick = function(){ if (this._it) toggleFav(this._it); };
+
+/* Catálogo */
+function norm(type, s){
+  if (type === 'series') return { type: type, id: s.series_id, name: s.name, img: s.cover };
+  return { type: type, id: s.stream_id, name: s.name, img: s.stream_icon };
+}
+function mkImg(src, cls){
+  var i = document.createElement('img'); i.alt = ''; i.loading = 'lazy'; i.referrerPolicy = 'no-referrer';
+  if (cls) i.className = cls;
+  i.onerror = function(){ i.style.display = 'none'; };
+  if (src) i.src = src;
+  return i;
+}
+function setMode(m){
+  mode = m; limit = PAGE; closeDetail();
+  for (var k in TABS) $(TABS[k]).classList.toggle('on', k === m);
+  $('cats').innerHTML = ''; $('items').innerHTML = ''; $('more').innerHTML = ''; streams = []; $('search').value = '';
+  $('playMsg').className = 'msg';
+  if (m === 'fav') {
+    [['all','Todos'],['live','TV en vivo'],['vod','Películas'],['series','Series']].forEach(function(p){
+      var o = document.createElement('option'); o.value = p[0]; o.textContent = p[1]; $('cats').appendChild(o);
+    });
+    $('playMsg').textContent = '';
+    renderItems(); return;
+  }
+  $('playMsg').textContent = 'Cargando categorías...';
+  api(CFG[m].cats).then(function(cs){
+    $('playMsg').textContent = '';
+    var all = document.createElement('option'); all.value = 'all'; all.textContent = 'ALL'; $('cats').appendChild(all);
+    cs.forEach(function(c){
+      var o = document.createElement('option'); o.value = c.category_id; o.textContent = c.category_name; $('cats').appendChild(o);
+    });
+    if ($('cats').options.length > 1) $('cats').selectedIndex = 1;
+    loadCat();
+  }).catch(fail);
+}
+function loadCat(){
+  $('items').innerHTML = ''; $('more').innerHTML = ''; limit = PAGE;
+  if (mode === 'fav') { renderItems(); return; }
+  $('playMsg').className = 'msg';
+  var c = $('cats').value, type = mode;
+  $('playMsg').textContent = c === 'all' ? 'Cargando todo el catálogo, puede tardar...' : 'Cargando...';
+  api(CFG[mode].list, c === 'all' ? '' : '&category_id=' + encodeURIComponent(c))
+    .then(function(s){
+      streams = Array.isArray(s) ? s.map(function(x){ return norm(type, x); }) : [];
+      $('playMsg').textContent = '';
+      renderItems();
+    }).catch(fail);
+}
+function activate(it){ if (it.type === 'live') playLive(it); else openDetail(it); }
+function onEnter(el, fn){ el.onclick = fn; el.onkeydown = function(e){ if (e.key === 'Enter') fn(); }; }
+function mkCard(it){
+  var d = document.createElement('div'); d.className = 'pc'; d.tabIndex = 0;
+  var p = document.createElement('div'); p.className = 'poster'; p.appendChild(mkImg(it.img, it.type === 'live' ? 'ct' : ''));
+  var n = document.createElement('div'); n.className = 'nm'; n.textContent = it.name;
+  d.appendChild(p); d.appendChild(n); d.appendChild(mkStar(it));
+  onEnter(d, function(){ activate(it); });
+  return d;
+}
+function mkRow(it){
+  var d = document.createElement('div'); d.className = 'it'; d.tabIndex = 0;
+  d.appendChild(mkImg(it.img));
+  var n = document.createElement('span'); n.className = 'nm'; n.textContent = it.name; d.appendChild(n);
+  d.appendChild(mkStar(it));
+  onEnter(d, function(){ activate(it); });
+  return d;
+}
+function renderItems(){
+  var box = $('items'); box.innerHTML = ''; $('more').innerHTML = '';
+  box.className = mode === 'live' ? 'list' : 'grid';
+  var q = $('search').value.toLowerCase(), src = streams;
+  if (mode === 'fav') { var c = $('cats').value; src = favs.filter(function(f){ return c === 'all' || f.type === c; }); }
+  var list = src.filter(function(s){ return (s.name || '').toLowerCase().indexOf(q) !== -1; });
+  var msg = $('playMsg'); msg.className = 'msg';
+  if (!src.length) msg.textContent = mode === 'fav' ? 'Aún no tienes favoritos. Toca la ☆ en cualquier canal, película o serie.' : 'Esta categoría está vacía.';
+  else msg.textContent = list.length ? '' : 'Sin resultados.';
+  list.slice(0, limit).forEach(function(it){ box.appendChild(mode === 'live' ? mkRow(it) : mkCard(it)); });
+  if (list.length > limit) {
+    var b = document.createElement('button'); b.textContent = 'Ver más (' + (list.length - limit) + ' restantes)';
+    b.onclick = function(){ limit += PAGE; renderItems(); };
+    $('more').appendChild(b);
+  }
+}
+
+/* Detalle (sinopsis, duración, episodios) */
+function closeDetail(){ $('detail').classList.add('hide'); $('detail').innerHTML = ''; $('listBox').classList.remove('hide'); }
+function durText(info, mins){
+  var s = parseInt(info.duration_secs, 10);
+  if (!s && typeof info.duration === 'string' && info.duration.indexOf(':') > 0) {
+    var p = info.duration.split(':').map(Number); s = (p[0] || 0) * 3600 + (p[1] || 0) * 60 + (p[2] || 0);
+  }
+  if (!s && mins) s = parseInt(mins, 10) * 60;
+  if (!s) return '';
+  var h = Math.floor(s / 3600), m = Math.round((s % 3600) / 60);
+  return ((h ? h + ' h ' : '') + (m ? m + ' min' : '')).trim();
+}
+function el(tag, cls, text){ var e = document.createElement(tag); if (cls) e.className = cls; if (text) e.textContent = text; return e; }
+function openDetail(it){
+  var dv = $('detail'); dv.innerHTML = ''; dv.classList.remove('hide'); $('listBox').classList.add('hide');
+  $('playMsg').textContent = '';
+  var back = el('button', '', '← Volver'); back.onclick = closeDetail; dv.appendChild(back);
+  var msg = el('p', 'msg', 'Cargando...'); dv.appendChild(msg);
+  var isS = it.type === 'series';
+  api(isS ? 'get_series_info' : 'get_vod_info', (isS ? '&series_id=' : '&vod_id=') + encodeURIComponent(it.id)).then(function(d){
+    dv.removeChild(msg);
+    var info = d.info || {}, ext = (d.movie_data && d.movie_data.container_extension) || 'mp4';
+    var wrap = el('div', 'det'), pw = el('div', 'dposter');
+    pw.appendChild(mkImg(info.movie_image || info.cover_big || info.cover || it.img));
+    var side = el('div', 'dinfo');
+    side.appendChild(el('h2', '', it.name));
+    var yr = String(info.releasedate || info.releaseDate || info.release_date || '').slice(0, 4);
+    var rt = parseFloat(info.rating);
+    var meta = [/^\d{4}$/.test(yr) ? yr : '', durText(info, info.episode_run_time), info.genre, rt > 0 ? '★ ' + rt : ''].filter(Boolean).join('  ·  ');
+    if (meta) side.appendChild(el('p', 'meta', meta));
+    side.appendChild(el('p', 'plot', info.plot || info.description || 'Sin sinopsis disponible.'));
+    var acts = el('div', 'acts');
+    if (!isS) {
+      var pb = el('button', 'primary', '▶ Reproducir');
+      pb.onclick = function(){
+        playUrl(host + '/movie/' + encodeURIComponent(sess.user) + '/' + encodeURIComponent(sess.pass) + '/' + it.id + '.' + ext, it.name, false);
+      };
+      acts.appendChild(pb);
+    }
+    acts.appendChild(mkStar(it));
+    side.appendChild(acts);
+    wrap.appendChild(pw); wrap.appendChild(side); dv.appendChild(wrap);
+    if (isS) {
+      var eps = d.episodes || {}, n = 0;
+      Object.keys(eps).sort(function(a, b){ return a - b; }).forEach(function(k){
+        dv.appendChild(el('div', 'sep', 'Temporada ' + k));
+        eps[k].forEach(function(e){
+          n++;
+          var row = el('div', 'it ep'); row.tabIndex = 0;
+          var t = el('span', 'nm', (e.episode_num ? e.episode_num + '. ' : '') + (e.title || 'Episodio'));
+          var ei = e.info || {}, dur = durText(ei), pl = ei.plot ? String(ei.plot).slice(0, 160) : '';
+          var sm = el('small', '', [dur, pl].filter(Boolean).join(' · '));
+          if (sm.textContent) t.appendChild(sm);
+          row.appendChild(t);
+          onEnter(row, function(){
+            playUrl(host + '/series/' + encodeURIComponent(sess.user) + '/' + encodeURIComponent(sess.pass) + '/' + e.id + '.' + (e.container_extension || 'mp4'), it.name + ' - ' + (e.title || 'Episodio'), false);
+          });
+          dv.appendChild(row);
+        });
+      });
+      if (!n) dv.appendChild(el('p', 'msg', 'No hay episodios disponibles.'));
+    }
+  }).catch(function(e){ msg.className = 'msg err'; msg.textContent = 'No se pudo cargar la información. (' + e.message + ')'; });
+}
+
+/* Reproducción */
+function playLive(it){
+  playUrl(host + '/live/' + encodeURIComponent(sess.user) + '/' + encodeURIComponent(sess.pass) + '/' + it.id + '.m3u8', it.name, true, it);
+}
+function playUrl(url, title, live, it){
+  var v = $('video'), ns = $('nowStar');
+  $('now').textContent = title;
+  ns._it = live ? it : null; ns.classList.toggle('hide', !live); refreshStars();
+  if (hls) { hls.destroy(); hls = null; }
+  if (live && window.Hls && Hls.isSupported()) {
+    hls = new Hls(); hls.loadSource(url); hls.attachMedia(v);
+    hls.on(Hls.Events.ERROR, function(ev, d){ if (d.fatal) { $('now').textContent = title + ' (no se pudo reproducir este canal)'; } });
+  } else { v.src = url; }
+  v.play().catch(function(){});
+  window.scrollTo(0, 0);
+}
+
+$('cats').onchange = loadCat;
+$('search').oninput = function(){ limit = PAGE; renderItems(); };
+for (var k in TABS) (function(key){ $(TABS[key]).onclick = function(){ setMode(key); }; })(k);
+
+showHost();
+var su = load('chiry_user'), sp = load('chiry_pass');
+if (su && sp) { sess = { user: su, pass: sp }; enter(); }
+</script>
+</body>
+</html>
